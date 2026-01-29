@@ -17,7 +17,7 @@ public class AuthDbContextFactory : IDesignTimeDbContextFactory<AuthDbContext>
 
         var optionsBuilder = new DbContextOptionsBuilder<AuthDbContext>();
         optionsBuilder.UseSqlServer(
-            configuration.GetConnectionString("Default"));
+            configuration.GetConnectionString("SQLServer"));
 
         return new AuthDbContext(optionsBuilder.Options);
     }

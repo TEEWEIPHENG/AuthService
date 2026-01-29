@@ -1,3 +1,4 @@
+using AuthService.API.Middlewares;
 using AuthService.Application;
 using AuthService.Infrastructure;
 using AuthService.Infrastructure.Services;
@@ -23,6 +24,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

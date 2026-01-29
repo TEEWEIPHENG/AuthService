@@ -9,22 +9,28 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
-namespace AuthService.Infrastructure;
 
+namespace AuthService.Infrastructure;
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("SQLServer")));
-
+        // EF Core
+        services.AddDbContext<AuthDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("SQLServer")));
+        var conn = configuration.GetConnectionString("SQLServer");
+        Console.WriteLine(conn); // should print full connection string
+        // Repositories & Services
         services.AddScoped<IUserRepository, UserRepository>();
-
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+        // JWT Options + Token Service
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt")); // binds Jwt section
         services.AddScoped<ITokenService, JwtTokenService>();
 
-        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
-
+        // Redis
+        services.AddSingleton<IConnectionMultiplexer>(
+            ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
         services.AddScoped<IRedisTokenStore, RedisTokenStore>();
 
         return services;

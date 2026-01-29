@@ -3,29 +3,30 @@ using AuthService.Domain.Enums;
 using AuthService.Domain.Events;
 using AuthService.Domain.Exceptions;
 using AuthService.Domain.Models;
+using System.Text.RegularExpressions;
 
 namespace AuthService.Domain.Entities
 {
     public class User : AggregateRoot
     {
-        private const int MaxFailedAttempts = 5;
-
         public string Username { get; private set; }
         public Email Email { get; private set;  }
         public PasswordHash PasswordHash { get; private set; }
+        public string Firstname { get; private set; }
+        public string Lastname { get; private set; }
         public Role Role { get; private set; }
         public UserStatus Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime UpdatedAt { get; private set; }
         public DateTime? LastLogin { get; private set; }
         public DateTime? DeletedAt { get; private set; }
-        public int FailedLoginAttempts { get; private set; }
-        public DateTime? LockedAt { get; private set; }
+        public int FailedLoginCount { get; private set; }
 
         public bool IsDeleted => DeletedAt.HasValue;
-        public bool IsLocked => LockedAt.HasValue && LockedAt > DateTime.UtcNow;
+        public bool IsLocked => FailedLoginCount >= 5;
 
-        private User() { } //For ORM
+        // Parameterless constructor for EF Core
+        private User() { }
 
         public User(string username, Email email, PasswordHash passwordHash, Role role)
         {
@@ -44,7 +45,7 @@ namespace AuthService.Domain.Entities
                 username,
                 Email.Create(email),
                 PasswordHash.Create(passwordHash),
-                Role.From(role)
+                Role.Create(role)
             );
 
             user.AddDomainEvent(new UserRegisteredEvent(user.Id.ToString()));
@@ -54,7 +55,7 @@ namespace AuthService.Domain.Entities
         public void ChangePassword(string newHash)
         {
             PasswordHash = PasswordHash.Create(newHash);
-            //unlock
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public void Deactivate()
@@ -72,32 +73,44 @@ namespace AuthService.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void RecordFailedLogin()
+        public void IncrementFailedLogin()
         {
-            FailedLoginAttempts++;
+            FailedLoginCount++;
+        }
 
-            if (FailedLoginAttempts >= MaxFailedAttempts)
-            {
-                LockedAt = DateTime.UtcNow;
-                Status = UserStatus.Locked;
-            }
+        public void ResetFailedLogin()
+        {
+            FailedLoginCount = 0;
+        }
 
+        public void Lock()
+        {
+            FailedLoginCount = 5;
+        }
+
+        public void UpdateUsername(string username)
+        {
+            Username = username;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void RecordSuccessfulLogin()
+        public void UpdateLastLogin()
         {
-            FailedLoginAttempts = 0;
-            LockedAt = null;
-            Status = UserStatus.Active;
             LastLogin = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-        }
-        public void EnsureNotLocked()
-        {
-            if (IsLocked)
-                throw new DomainException($"Account locked until {LockedAt:O}");
         }
 
+        public static void ValidatePassword(string password)
+        {
+            if(password.Length < 8)
+                throw new DomainException("Password must be at least 8 characters long");
+            if(!password.Any(char.IsDigit))
+                throw new DomainException("Password must contain at least one digit");
+            if (!password.Any(char.IsUpper))
+                throw new DomainException("Password must contain at least one uppercase letter");
+            if (!password.Any(char.IsLower))
+                throw new DomainException("Password must contain at least one lowercase letter");
+            if (!Regex.IsMatch(password, @"[!@#$%^&*()_\-+=\[{\]};:'"",<.>/?\\|`~]"))
+                throw new DomainException("Password must contain at least one special character");
+        }
     }
 }

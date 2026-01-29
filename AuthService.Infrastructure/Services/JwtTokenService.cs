@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.Interfaces.Services;
+using AuthService.Domain.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,30 +24,30 @@ namespace AuthService.Infrastructure.Services
             _options = options.Value;
         }
 
-        public string GenerateToken(string userId, string role)
+        public TokenResult Generate(User user)
         {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userId)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email.Value),
+                new Claim("username", user.Username),
             };
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_options.Secret));
-
             var token = new JwtSecurityToken(
-                _options.Issuer,
-                _options.Audience,
-                claims,
+                claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes),
-                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+                signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        public string GenerateRefreshToken()
-        {
-            throw new NotImplementedException();
+            // Refresh token can be a GUID or JWT as well
+            var refreshToken = Guid.NewGuid().ToString();
+
+            return new TokenResult(accessToken, refreshToken, DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes));
         }
     }
 

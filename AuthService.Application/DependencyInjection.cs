@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using AuthService.Application.Interfaces.Repositories;
 using AuthService.Application.Interfaces.Services;
 using Microsoft.Extensions.DependencyInjection;
 
