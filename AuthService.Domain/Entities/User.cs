@@ -28,24 +28,29 @@ namespace AuthService.Domain.Entities
         // Parameterless constructor for EF Core
         private User() { }
 
-        public User(string username, Email email, PasswordHash passwordHash, Role role)
+        public User(string username, Email email, PasswordHash passwordHash, Role role, string firstname, string lastname)
         {
             Username = username;
             Email = email;
             PasswordHash = passwordHash;
             Role = role;
+            Firstname = firstname;
+            Lastname = lastname;
             Status = UserStatus.Active;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+            FailedLoginCount = 0;
         }
 
-        public static User Create(string username,string email,string passwordHash,string role)
+        public static User Create(string username,string email,string passwordHash,string role, string firstname, string lastname)
         {
             var user = new User(
                 username,
                 Email.Create(email),
                 PasswordHash.Create(passwordHash),
-                Role.Create(role)
+                Role.Create(role),
+                firstname,
+                lastname
             );
 
             user.AddDomainEvent(new UserRegisteredEvent(user.Id.ToString()));

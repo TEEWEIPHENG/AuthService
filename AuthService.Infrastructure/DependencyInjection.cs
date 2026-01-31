@@ -25,13 +25,22 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         // JWT Options + Token Service
-        services.Configure<JwtOptions>(configuration.GetSection("Jwt")); // binds Jwt section
+        services.Configure<JwtOptions>(configuration.GetSection("JWT")); // binds Jwt section
         services.AddScoped<ITokenService, JwtTokenService>();
 
         // Redis
-        services.AddSingleton<IConnectionMultiplexer>(
-            ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")));
-        services.AddScoped<IRedisTokenStore, RedisTokenStore>();
+        var redisConnString = configuration.GetConnectionString("Redis");
+        if (!string.IsNullOrEmpty(redisConnString))
+        {
+
+            services.AddSingleton<IConnectionMultiplexer>(
+                ConnectionMultiplexer.Connect(redisConnString));
+            services.AddScoped<IRedisTokenStore, RedisTokenStore>();
+        }
+        else
+        {
+            Console.WriteLine("Redis connection string is not configured.");
+        }
 
         return services;
     }

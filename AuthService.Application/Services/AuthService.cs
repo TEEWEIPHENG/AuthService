@@ -43,7 +43,7 @@ namespace AuthService.Application.Services
 
                 Role role = Role.Create("User");
 
-                var user = new User(request.Username, email, passwordHash, role);
+                var user = new User(request.Username, email, passwordHash, role, request.Firstname, request.Lastname);
 
                 await _userRepository.CreateAsync(user);
 

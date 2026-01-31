@@ -2,6 +2,7 @@
 using AuthService.Domain.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,6 +19,7 @@ namespace AuthService.Infrastructure.Services
     public class JwtTokenService : ITokenService
     {
         private readonly JwtOptions _options;
+        ILogger<JwtTokenService> _logger;
 
         public JwtTokenService(IOptions<JwtOptions> options)
         {
@@ -26,6 +28,7 @@ namespace AuthService.Infrastructure.Services
 
         public TokenResult Generate(User user)
         {
+            _logger.LogInformation("JWT:Secret -> ", _options.Secret);
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

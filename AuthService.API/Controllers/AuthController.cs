@@ -35,9 +35,11 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
 
         var appRequest = new ApplicationModels.RegisterRequest(
-               request.Username,
-               request.Email,
-               request.Password
+               Username: request.Username,
+               Email: request.Email,
+               Password: request.Password,
+               Firstname: request.Firstname,
+               Lastname: request.Lastname
            );
         var result = await _authService.RegisterAsync(appRequest);
 

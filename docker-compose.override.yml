@@ -1,0 +1,17 @@
+services:
+  authservice:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    working_dir: /src
+    command: ["dotnet", "watch", "--project", "AuthService.API/AuthService.API.csproj", "run", "--urls", "http://+:80"]
+    volumes:
+      - ./:/src:cached
+      - ~/.nuget/packages:/root/.nuget/packages:ro
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION}
+      - ConnectionStrings__SQLServer=${SQLSERVER_CONNECTION}
+    depends_on:
+      - redis
+      - sqlserver

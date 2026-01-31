@@ -1,0 +1,47 @@
+services:
+  authservice:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    container_name: authservice-dev
+    working_dir: /src
+    command:
+      [
+        "dotnet",
+        "watch",
+        "--project",
+        "AuthService.API/AuthService.API.csproj",
+        "run",
+        "--urls",
+        "http://+:80"
+      ]
+    volumes:
+      - ./:/src
+      - ~/.nuget/packages:/root/.nuget/packages
+    ports:
+      - "5002:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Redis: ${REDIS_CONNECTION}
+      ConnectionStrings__SQLServer: ${SQLSERVER_CONNECTION}
+    depends_on:
+      - sqlserver
+      - redis
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  sqlserver_data:
