@@ -21,14 +21,15 @@ namespace AuthService.Infrastructure.Services
         private readonly JwtOptions _options;
         ILogger<JwtTokenService> _logger;
 
-        public JwtTokenService(IOptions<JwtOptions> options)
+        public JwtTokenService(IOptions<JwtOptions> options, ILogger<JwtTokenService> logger)
         {
             _options = options.Value;
+            _logger = logger;
         }
 
         public TokenResult Generate(User user)
         {
-            _logger.LogInformation("JWT:Secret -> ", _options.Secret);
+            _logger.LogInformation("======== Start Generate Token for {Email} ========", user.Email);
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

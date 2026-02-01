@@ -22,6 +22,10 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__Redis: ${REDIS_CONNECTION}
       ConnectionStrings__SQLServer: ${SQLSERVER_CONNECTION}
+      JWT__Issuer: ${JWT__ISSUER}
+      JWT__Audience: ${JWT__AUDIENCE}
+      JWT__Secret: ${JWT__SECRET}
+      JWT__ExpiryMinutes: ${JWT__EXPIRYMINUTES}
     depends_on:
       - sqlserver
       - redis

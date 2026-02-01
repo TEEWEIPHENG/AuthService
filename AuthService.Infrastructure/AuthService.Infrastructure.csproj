@@ -7,13 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj" />
-    <ProjectReference Include="..\AuthService.Domain\AuthService.Domain.csproj" />
+    <Compile Remove="Identity\**" />
+    <Compile Remove="Messaging\**" />
+    <EmbeddedResource Remove="Identity\**" />
+    <EmbeddedResource Remove="Messaging\**" />
+    <None Remove="Identity\**" />
+    <None Remove="Messaging\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Identity\" />
-    <Folder Include="Messaging\" />
+    <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj" />
+    <ProjectReference Include="..\AuthService.Domain\AuthService.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
