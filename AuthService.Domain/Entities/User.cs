@@ -11,6 +11,7 @@ namespace AuthService.Domain.Entities
     {
         public string Username { get; private set; }
         public Email Email { get; private set;  }
+        public PhoneNumber PhoneNumber {get; private set; }
         public PasswordHash PasswordHash { get; private set; }
         public string Firstname { get; private set; }
         public string Lastname { get; private set; }
@@ -28,10 +29,11 @@ namespace AuthService.Domain.Entities
         // Parameterless constructor for EF Core
         private User() { }
 
-        public User(string username, Email email, PasswordHash passwordHash, Role role, string firstname, string lastname)
+        public User(string username, Email email, PasswordHash passwordHash, Role role, string firstname, string lastname, PhoneNumber phoneNumber)
         {
             Username = username;
             Email = email;
+            PhoneNumber = phoneNumber;
             PasswordHash = passwordHash;
             Role = role;
             Firstname = firstname;
@@ -42,7 +44,7 @@ namespace AuthService.Domain.Entities
             FailedLoginCount = 0;
         }
 
-        public static User Create(string username,string email,string passwordHash,string role, string firstname, string lastname)
+        public static User Create(string username,string email,string passwordHash,string role, string firstname, string lastname, string phoneNumber)
         {
             var user = new User(
                 username,
@@ -50,7 +52,8 @@ namespace AuthService.Domain.Entities
                 PasswordHash.Create(passwordHash),
                 Role.Create(role),
                 firstname,
-                lastname
+                lastname,
+                PhoneNumber.Create(phoneNumber)
             );
 
             user.AddDomainEvent(new UserRegisteredEvent(user.Id.ToString()));
@@ -99,9 +102,10 @@ namespace AuthService.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateLastLogin()
+        public void UpdatePassword(string password)
         {
-            LastLogin = DateTime.UtcNow;
+            PasswordHash = PasswordHash.Create(password);
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public static void ValidatePassword(string password)

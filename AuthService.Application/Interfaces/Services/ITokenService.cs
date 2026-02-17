@@ -9,7 +9,8 @@ namespace AuthService.Application.Interfaces.Services
     {
         TokenResult Generate(User user);
 
+        string RefreshToken();
     }
 
-    public record TokenResult(string AccessToken, string RefreshToken, DateTime ExpiresAt);
+    public record TokenResult(string AccessToken, DateTime ExpiresAt);
 }

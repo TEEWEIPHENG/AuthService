@@ -34,6 +34,11 @@ namespace AuthService.Infrastructure.Persistence.Configurations
                 ph.Property(p => p.Value).HasColumnName("Role").IsRequired();
             });
 
+            builder.OwnsOne(x => x.PhoneNumber, ph =>
+            {
+                ph.Property(p => p.Value).HasColumnName("PhoneNumber").IsRequired();
+            });
+
             builder.Property(x => x.Status).IsRequired();
         }
     }

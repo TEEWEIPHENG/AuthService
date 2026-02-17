@@ -39,7 +39,8 @@ public class AuthController : ControllerBase
                Email: request.Email,
                Password: request.Password,
                Firstname: request.Firstname,
-               Lastname: request.Lastname
+               Lastname: request.Lastname,
+               MobileNo: request.MobileNo
            );
         var result = await _authService.RegisterAsync(appRequest);
 
@@ -53,13 +54,27 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-    //[HttpPost("login")]
-    //[AllowAnonymous]
-    //public async Task<ActionResult<AuthResult>> Login(LoginRequest request)
-    //{
-    //    var result = await _authService.LoginAsync(new LoginRequest(request.Username, request.Password));
-    //    return Ok(result);
-    //}
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login(APIModels.LoginRequest request)
+    {
+        _logger.LogInformation("Login attempt for {Credential}, CorrelationId={CorrelationId}",
+            request.Credential,
+            HttpContext.Items["X-Correlation-ID"]);
+        
+        var appRequest = new ApplicationModels.LoginRequest(request.Credential, request.Password);
+        var result = await _authService.LoginAsync(appRequest);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation("User login successfully: {Credential}", request.Credential);
+            return Ok(result);
+        }
+        else
+        {
+            _logger.LogInformation("User login failure: {Credential}", request.Credential);
+            return Unauthorized(result);
+        }
+    }
 
     //[HttpPost("logout")]
     //[Authorize]
@@ -87,12 +102,13 @@ public class AuthController : ControllerBase
     //    var profile = await _authService.GetProfileAsync(userId);
     //    return Ok(profile);
     //}
-    //[HttpPost("change-password")]
-    //[Authorize]
-    //public async Task<IActionResult> ChangePassword()
-    //{
-    //    var userId = User.FindFirst("sub")?.Value!;
-    //    await _authService.ChangePasswordAsync(userId);
-    //    return NoContent();
-    //}
+
+    [HttpPost("reset-password")]
+    [Authorize]
+    public async Task<IActionResult> ResetPassword(APIModels.ResetPasswordRequest request)
+    {
+       var userId = User.FindFirst("sub")?.Value!;
+       await _authService.ResetPasswordAsync(userId, request.MFAToken, request.NewPassword);
+       return NoContent();
+    }
 }

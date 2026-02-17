@@ -363,3 +363,15 @@ MigrationBackup/
 FodyWeavers.xsd
 
 .env*
+
+# Ignore all DLL files
+*.dll
+
+# Ignore build output folders
+bin/
+obj/
+
+# Ignore Rider / VS / VSCode folders
+.vs/
+.idea/
+.vscode/

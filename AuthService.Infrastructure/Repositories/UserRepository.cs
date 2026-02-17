@@ -29,6 +29,16 @@ namespace AuthService.Infrastructure.Repositories
             return await _db.Users.FirstOrDefaultAsync(x => x.Email.Value == email);
         }
 
+        public async Task<User?> GetByMobileNoAsync(string mobileNo)
+        {
+            return await _db.Users.FirstOrDefaultAsync(x => x.PhoneNumber.Value == mobileNo);
+        }
+        public async Task<User?> ValidateCredentialAsync(string credential, string password)
+        {
+            return await _db.Users.FirstOrDefaultAsync(x => x.PasswordHash.Value == password && 
+                (x.Email.Value.Equals(credential, StringComparison.CurrentCultureIgnoreCase) || x.Username.Equals(credential)));
+        }
+
         public async Task CreateAsync(User user)
         {
             _db.Users.Add(user);

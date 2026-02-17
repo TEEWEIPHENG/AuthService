@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace AuthService.Infrastructure.Services
 {
@@ -38,6 +39,7 @@ namespace AuthService.Infrastructure.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email.Value),
                 new Claim("username", user.Username),
+                new Claim("role", user.Role.Value),
             };
 
             var token = new JwtSecurityToken(
@@ -48,10 +50,15 @@ namespace AuthService.Infrastructure.Services
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            // Refresh token can be a GUID or JWT as well
-            var refreshToken = Guid.NewGuid().ToString();
+            return new TokenResult(accessToken, DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes));
+        }
 
-            return new TokenResult(accessToken, refreshToken, DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes));
+        public string RefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
     }
 

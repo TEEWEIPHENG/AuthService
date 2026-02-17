@@ -14,5 +14,7 @@ namespace AuthService.API.Models.Requests
         public string Email { get; set; } = null!;
         [Required, MinLength(8)]
         public string Password { get; set; } = null!;
+        [Required, Phone]
+        public string MobileNo { get; set; } = null!;
     }
 }

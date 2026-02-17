@@ -1,7 +1,4 @@
 ﻿using AuthService.Application.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AuthService.Application.Interfaces.Services
 {
@@ -13,6 +10,7 @@ namespace AuthService.Application.Interfaces.Services
         public Task<AuthResult> RefreshTokenAsync(RefreshTokenRequest request);
         public Task<UserProfileDto> GetProfileAsync(string userId);
         public Task ChangePasswordAsync(string newPassword);
+        public Task ResetPasswordAsync(string userId, string mfaToken, string newPassword);
 
     }
 }

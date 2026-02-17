@@ -4,5 +4,5 @@ using System.Text;
 
 namespace AuthService.Application.Models
 {
-    public record LoginRequest(string Username,string Password);
+    public record LoginRequest(string Credential, string Password);
 }
