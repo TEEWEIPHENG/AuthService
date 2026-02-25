@@ -1,8 +1,9 @@
-﻿using AuthService.Application.Interfaces.Services;
-using ApplicationModels = AuthService.Application.Models;
-using APIModels = AuthService.API.Models.Requests;
+﻿using AuthService.API.Models.Responses;
+using AuthService.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using APIModels = AuthService.API.Models.Requests;
+using ApplicationModels = AuthService.Application.Models;
 namespace AuthService.API.Controllers;
 
 [ApiController]
@@ -54,6 +55,12 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Authorize user login and provide access token
+    /// </summary>
+    /// <param name="request">LoginRequest(Credential, Password)</param>
+    /// <returns>AuthResult</returns>
+    [HttpPost("register")]
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login(APIModels.LoginRequest request)
