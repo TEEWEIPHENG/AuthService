@@ -60,7 +60,6 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="request">LoginRequest(Credential, Password)</param>
     /// <returns>AuthResult</returns>
-    [HttpPost("register")]
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login(APIModels.LoginRequest request)
